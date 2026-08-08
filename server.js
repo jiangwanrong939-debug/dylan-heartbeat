@@ -1726,18 +1726,27 @@ app.post("/admin/restart", { preHandler: basicAuth }, async (req, reply) => {
   });
 });
 
-// ========================
+// ====================
 // 测试 Bark
-// ========================
+// ====================
 app.get("/test-bark", async (req, reply) => {
   const formattedTime = formatDateTimeInTimeZone(new Date(), TIME_ZONE);
-  appendSpecialEvent(`（${formattedTime} 刚刚给用户发了 Bark：这是一条测试推送。）`);
+  appendSpecialEvent(`${formattedTime} 刚刚给用户发了 Bark: 这是一条测试推送。`);
   reply.send({ success: true });
 });
 
 // ========================
 // 启动服务
 // ========================
+// 根路径测试接口，解决访问首页404
+app.get('/', (req, reply) => {
+  reply.send({
+    service: "heartbeat gateway",
+    status: "running",
+    admin_panel: "/admin",
+    api_endpoint: "/v1/chat/completions"
+  })
+})
 app.listen({ port: PORT, host: "0.0.0.0" }, (err, address) => {
   if (err) {
     console.error(err);
