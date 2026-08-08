@@ -1730,11 +1730,27 @@ app.post("/admin/restart", { preHandler: basicAuth }, async (req, reply) => {
 // 测试 Bark
 // ====================
 app.get("/test-bark", async (req, reply) => {
+  const barkKey = "wUUSpFBHp3Ng7tpsfbm5za";
+  const barkUrl = `https://api.day.app/${barkKey}`;
   const formattedTime = formatDateTimeInTimeZone(new Date(), TIME_ZONE);
-  appendSpecialEvent(`${formattedTime} 刚刚给用户发了 Bark: 这是一条测试推送。`);
-  reply.send({ success: true });
-});
 
+  try {
+    await fetch(barkUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "测试通知",
+        body: "来自render服务的bark推送测试",
+        sound: "bell"
+      })
+    });
+    appendSpecialEvent(`${formattedTime} 刚刚给用户发了 Bark: 推送消息发送成功`);
+    return reply.send({ success: true, msg: "推送已发出" });
+  } catch (err) {
+    appendSpecialEvent(`${formattedTime} Bark推送失败: ${err.message}`);
+    return reply.send({ success: false, error: err.message });
+  }
+});
 // ========================
 // 启动服务
 // ========================
